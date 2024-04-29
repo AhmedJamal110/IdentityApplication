@@ -74,9 +74,11 @@ namespace IdentityApplication.API.Controllers
 		[HttpGet("refresh-user-token")]
 		public async Task<ActionResult<UserDto>> RefrshUserToken()
 		{
-			var username = User.FindFirst(ClaimTypes.Email)?.Value;
-			var user = await _userManager.FindByNameAsync(username);
+
+			var UserName = User.FindFirst(ClaimTypes.Email)?.Value;
+			var user =  await _userManager.FindByNameAsync(UserName);
 			return CtreateApplicationUserDto(user);
+
 		}
 
 

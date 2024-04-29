@@ -1,0 +1,43 @@
+<div class="d-flex justify-content-center text-center">
+    <div class="col-12 col-lg-5">
+        <form [formGroup]="registerForm" (ngSubmit)="register()" autocomplete="off">
+            <div class="mb-3">
+                <h2 class="fw-normal login-text"> Register</h2>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input formControlName="firstName" type="text" class="form-control" id="FirstName"
+                    placeholder="FirstName">
+                <label for="FirstName">FirstName</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input formControlName="lastName" type="text" class="form-control" id="LastName" placeholder="LastName">
+                <label for="LastName">LastName</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input formControlName="email" type="email" class="form-control" id="exampleInputEmail1"
+                    aria-describedby="emailHelp" placeholder="Enter email">
+                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
+                    else.</small>
+                <label for="exampleInputEmail1">Email</label>
+            </div>
+            <div class="form-floating mb-3">
+                <input formControlName="password" type="password" class="form-control" id="exampleInputPassword1"
+                    placeholder="Password">
+                <label for="exampleInputPassword1">Password</label>
+            </div>
+            <div class="d-grid">
+                <button type="submit" class="btn btn-info mt-2">Create Account</button>
+
+            </div>
+
+        </form>
+        <div class="mt-4">
+            <a class="btn btn-link ">
+                <h6>Already have an account</h6>
+            </a>
+        </div>
+
+    </div>
+
+</div>

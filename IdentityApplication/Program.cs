@@ -31,7 +31,7 @@ namespace IdentityApplication
 
 			builder.Services.AddDbContext<AppIdentityDbContext>(Opt =>
 			{
-					Opt.UseSqlServer(builder.Configuration.GetConnectionString("IdnetityDbContext"));
+				Opt.UseSqlServer(builder.Configuration.GetConnectionString("IdnetityDbContext"));
 			});
 
 			builder.Services.AddScoped<JwtServices>();
@@ -62,16 +62,22 @@ namespace IdentityApplication
 					{
 
 						ValidateIssuerSigningKey = true,
-						IssuerSigningKey = new SymmetricSecurityKey (Encoding.UTF8.GetBytes(builder.Configuration["Token:key"])),
-						ValidateIssuer = true , 
+						IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Token:key"])),
+						ValidateIssuer = true,
 						ValidIssuer = builder.Configuration["Token:ValidIssuer"],
 						ValidateAudience = true,
 						ValidAudience = builder.Configuration["Token:ValidAudiance"],
-						ValidateLifetime =true,
+						ValidateLifetime = true,
 					};
 				});
 
-
+			builder.Services.AddCors( opt =>
+			{
+				opt.AddPolicy("CotsOrigin", policy =>
+				{
+					policy.WithOrigins("http://localhost:4200").AllowAnyHeader().AllowAnyMethod();
+				});
+			});
 
 
 
@@ -95,9 +101,13 @@ namespace IdentityApplication
 			{
 				var loger = LoogerFactory.CreateLogger<Program>();
 				loger.LogError(ex, "An Error Occure");
-			
+
 			}
 			// Configure the HTTP request pipeline.
+			app.UseCors("CotsOrigin");
+			
+				
+	
 			if (app.Environment.IsDevelopment())
 			{
 				app.UseSwagger();
