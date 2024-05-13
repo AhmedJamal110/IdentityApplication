@@ -1,43 +1,87 @@
-<div class="d-flex justify-content-center text-center">
-    <div class="col-12 col-lg-5">
-        <form [formGroup]="registerForm" (ngSubmit)="register()" autocomplete="off">
-            <div class="mb-3">
-                <h2 class="fw-normal login-text"> Register</h2>
+<div class="d-flex justify-content-center">
+    <div class="col-6">
+        <form [formGroup]="registerFrom" (ngSubmit)="onRegisterSubmit()" autocomplete="off">
+            <div class="text-center mb-3">
+                <h2>Let's Get Start To <span class="text-danger">Play</span></h2>
             </div>
 
+
+
             <div class="form-floating mb-3">
-                <input formControlName="firstName" type="text" class="form-control" id="FirstName"
-                    placeholder="FirstName">
-                <label for="FirstName">FirstName</label>
+                <input formControlName="firstName" type="text" placeholder="First name" class="form-control"
+                    [class.is-invalid]="submitted && registerFrom.get('firstName')?.errors">
+                <label for="firstName">First name</label>
+                <span class="text-danger" *ngIf="submitted && registerFrom.get('firstName')?.hasError('required')">
+                    First name is required
+                </span>
+                <span class="text-danger"
+                    *ngIf="submitted && 
+                    registerFrom.get('firstName')?.hasError('minlength') || registerFrom.get('firstName')?.hasError('maxlength')">
+                    First name must be at least 3, and maximum 15 characters
+                </span>
+            </div>
+
+
+
+
+
+
+
+
+            <div class="form-floating mb-3">
+                <input formControlName="lastName" type="text" class="form-control" placeholder="Last Name"
+                    [class.is-invalid]="submitted && registerFrom.get('lastName')?.errors">
+                <label>Last Name</label>
+                <span class="invalid-feedback"
+                    *ngIf="submitted && registerFrom.get('lastName')?.hasError('required')">last name is required</span>
+                <span class="text-danger"
+                    *ngIf="submitted && 
+                    registerFrom.get('lastName')?.hasError('minlength') || registerFrom.get('lastName')?.hasError('maxlength')">
+                    First name must be at least 3, and maximum 15 characters
+                </span>
+            </div>
+
+
+            <div class="form-floating mb-3">
+                <input [class.is-invalid]="submitted && registerFrom.get('email')?.errors" type="email"
+                    class="form-control" placeholder="Email Address" formControlName="email">
+                <label>Email</label>
+                <span class="invalid-feedback"
+                    *ngIf="submitted && registerFrom.get('email')?.hasError('required')">email address is
+                    required</span>
+                <span class="invalid-feedback"
+                    *ngIf="submitted && registerFrom.get('email')?.hasError('pattern') ">Invaild email address</span>
             </div>
             <div class="form-floating mb-3">
-                <input formControlName="lastName" type="text" class="form-control" id="LastName" placeholder="LastName">
-                <label for="LastName">LastName</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input formControlName="email" type="email" class="form-control" id="exampleInputEmail1"
-                    aria-describedby="emailHelp" placeholder="Enter email">
-                <small id="emailHelp" class="form-text text-muted">We'll never share your email with anyone
-                    else.</small>
-                <label for="exampleInputEmail1">Email</label>
-            </div>
-            <div class="form-floating mb-3">
-                <input formControlName="password" type="password" class="form-control" id="exampleInputPassword1"
-                    placeholder="Password">
-                <label for="exampleInputPassword1">Password</label>
-            </div>
-            <div class="d-grid">
-                <button type="submit" class="btn btn-info mt-2">Create Account</button>
+                <input [class.is-invalid]="submitted && registerFrom.get('paswword')?.errors" type="password"
+                    class="form-control" placeholder="paswword" formControlName="paswword">
+                <label>Password</label>
+                <span class="invalid-feedback"
+                    *ngIf="submitted && registerFrom.get('paswword')?.hasError('required')">Password is require </span>
+                <span class="invalid-feedback"
+                    *ngIf="submitted && registerFrom.get('paswword')?.hasError('minlength') || registerFrom.get('paswword')?.hasError('maxlength')">
+                    Password Must be at least (6) and maximum (15) charchters
+                </span>
+
+                <div class="form-floating mb-3" *ngIf="errorMessages.length > 0">
+                    <app-validation-messages [errorMessage]="errorMessages"></app-validation-messages>
+                </div>
+
 
             </div>
+            <div class="d-grid" mb-3>
+                <button type="submit" class="btn btn-outline-primary">Register</button>
+            </div>
+
+            <div class="text-center mt-3">
+                <a class="btn btn-link">
+                    <h6>dont have an account</h6>
+                </a>
+            </div>
+
+
+
 
         </form>
-        <div class="mt-4">
-            <a class="btn btn-link ">
-                <h6>Already have an account</h6>
-            </a>
-        </div>
-
     </div>
-
 </div>

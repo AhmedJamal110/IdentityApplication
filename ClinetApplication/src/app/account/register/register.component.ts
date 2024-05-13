@@ -1,6 +1,10 @@
-import { AccountService } from './../account.service';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { AccountService } from '../account.service';
+import { Router } from '@angular/router';
+import { SharedService } from 'src/app/shared/shared.service';
+
+  
 
 @Component({
   selector: 'app-register',
@@ -8,40 +12,76 @@ import { FormBuilder, FormGroup, Validators } from '@angular/forms';
   styleUrls: ['./register.component.css']
 })
 export class RegisterComponent implements OnInit {
- 
-  registerForm : FormGroup = new FormGroup({});
- submitted = false;
- errorsMessage : string[] = []; 
 
-  constructor( private _AccountService :AccountService ,private FormBuilder : FormBuilder ){}
+  submitted = false;
+
+  errorMessages : string[] = [];
+
+  registerFrom : FormGroup = new FormGroup({})
+
+  emailPattern ="^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$"
+
+  
+  initialForm(){
+    this.registerFrom = this._FormBuilder.group({
+      firstName : ['' , [Validators.required , Validators.minLength(3) , Validators.maxLength(15) ]],
+      lastName : ['' , [Validators.required , Validators.minLength(3) , Validators.maxLength(15)]],
+      email : ['' , [Validators.required , Validators.email , Validators.pattern(this.emailPattern)]],
+      paswword : ['' , [Validators.required, Validators.minLength(6) , Validators.maxLength(15) ]],
+      
+    })
+  }
+  
+  constructor(private _FormBuilder: FormBuilder , private _AccountService:AccountService , 
+    private _Router: Router , private _SharedService:SharedService){}
+  
+  
   ngOnInit(): void {
-    this.InitialaizeForm();
- }
-
-  InitialaizeForm(){
-    this.registerForm = this.FormBuilder.group({
-      firstName :['' , Validators.required , Validators.minLength(3) , Validators.maxLength(15)],
-      lastName :['' , Validators.required , Validators.minLength(3) , Validators.maxLength(15)],
-      email :['' , Validators.required , Validators.pattern('^\\w+@[a-zA-Z_]+?\\.[a-zA-Z]{2,3}$"')],
-      password :['' , Validators.required , Validators.minLength(6) , Validators.maxLength(15)],    
-    
-    })
+  
+    this.initialForm()
   }
- 
-  register(){
 
-    this.submitted= true;
-    this.errorsMessage = [];
 
-    this._AccountService.register(this.registerForm.value).subscribe({
-      next:(response) => {
-        console.log(response);
-        
-      },
-      error : error =>{
-        console.log(error);
-        
-      }
-    })
+
+  onRegisterSubmit(){
+    this.submitted = true;
+
+     if(this.registerFrom.valid){
+      this._AccountService.register(this.registerFrom.value).subscribe({
+        next:(resppnse : any) => {
+          this._SharedService.showNotification(true , resppnse.value.title ,resppnse.value.message );
+           this._Router.navigateByUrl('account/login') 
+        }  ,
+    error : (err) => {
+      console.log(err);
+          if(err.error.errors){
+            
+            this.errorMessages = err.error.errors;
+          }else{
+            this.errorMessages.push(err.error)
+            
+          }
+        }
+      }) 
+
   }
+
+  }
+
 }
+
+
+     
+  
+
+
+
+  
+  
+
+ 
+  
+ 
+
+    
+ 

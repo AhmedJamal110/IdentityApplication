@@ -1,5 +1,8 @@
 export const environment = {
     production: false,
-    apiUrl: 'https://localhost:7060',
+    apiUrl: 'https://localhost:7060/api/',
     userkey:'identityApp'
+
 };
+
+

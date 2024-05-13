@@ -1,1 +1,3 @@
-<p>validation-messages works!</p>
+<ul class="text-danger" *ngIf="errorMessage">
+    <li *ngFor="let item of errorMessage">{{item}}</li>
+</ul>

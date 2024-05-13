@@ -49,7 +49,7 @@ namespace IdentityApplication.API.Controllers
 		{
 			if(await CheckEmailExit(model.Email))
 			{
-				return BadRequest($"this email{model.Email} is Already in using, Please try with another Email ");
+				return BadRequest($"this email {model.Email} is Already in using, Please try with another Email ");
 			}
 
 			var user = new AppUser
@@ -66,7 +66,8 @@ namespace IdentityApplication.API.Controllers
 			if (!Result.Succeeded)
 				return BadRequest(Result.Errors);
 
-			return Ok("your account has been created , you can login now ");
+			return Ok(new JsonResult(new {title = "Account Created" , message="your account has been created , you can login" }  ));
+			//return Ok("your account has been created , you can login now ");
 
 		}
 
@@ -75,8 +76,11 @@ namespace IdentityApplication.API.Controllers
 		public async Task<ActionResult<UserDto>> RefrshUserToken()
 		{
 
-			var UserName = User.FindFirst(ClaimTypes.Email)?.Value;
-			var user =  await _userManager.FindByNameAsync(UserName);
+			var email = User.FindFirstValue(ClaimTypes.Email);
+			var user = await _userManager.FindByEmailAsync(email);
+			
+			//var UserName = User.FindFirst(ClaimTypes.Name)?.Value;
+			//var user =  await _userManager.FindByNameAsync(UserName);
 			return CtreateApplicationUserDto(user);
 
 		}
