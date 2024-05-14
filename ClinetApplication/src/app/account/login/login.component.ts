@@ -5,6 +5,7 @@ import { AccountService } from '../account.service';
 import { Router } from '@angular/router';
 import { SharedService } from 'src/app/shared/shared.service';
 import { environment } from 'src/app/shared/environments/environment.development';
+import { take } from 'rxjs';
 
 
 
@@ -22,7 +23,14 @@ export class LoginComponent implements OnInit {
 
 
 constructor(private _formBuilder : FormBuilder  , 
-  private _AccountService: AccountService  , private _Router: Router , private _SharedService: SharedService){}
+  private _AccountService: AccountService  , private _Router: Router , private _SharedService: SharedService)
+  { this._AccountService.userSource$.pipe(take(1)).subscribe({
+    next:(user : User | null) => {
+      if(user){
+        this._Router.navigateByUrl('/')
+      }
+    } 
+  }) }
 
 
 ngOnInit(): void {

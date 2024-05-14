@@ -71,7 +71,7 @@
 
             <div class="d-flex align-items-center ms-auto" *ngIf="_AccountService.userSource$ | async as user">
                 <a class="text-decoration-none text-white">Hi <span>{{user.firstName | titlecase}}</span></a>
-                <a class="btn btn-secondary ms-2">logout</a>
+                <a class="btn btn-secondary ms-2" (click)="_AccountService.logout()">logout</a>
             </div>
         </div>
     </nav>
