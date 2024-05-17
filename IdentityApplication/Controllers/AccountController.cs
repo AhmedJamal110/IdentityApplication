@@ -5,8 +5,12 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using System;
 using System.Security.Claims;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace IdentityApplication.API.Controllers
@@ -18,13 +22,18 @@ namespace IdentityApplication.API.Controllers
 		private readonly JwtServices _jwtServices;
 		private readonly UserManager<AppUser> _userManager;
 		private readonly SignInManager<AppUser> _signInManager;
+        private readonly IConfiguration _config;
+        private readonly EmailServices _emailServices;
 
-		public AccountController( JwtServices jwtServices ,UserManager<AppUser> userManager , SignInManager<AppUser> signInManager )
+        public AccountController( JwtServices jwtServices ,UserManager<AppUser> userManager , 
+			SignInManager<AppUser> signInManager , IConfiguration config , EmailServices emailServices)
         {
 			_jwtServices = jwtServices;
 			_userManager = userManager;
 			_signInManager = signInManager;
-		}
+            _config = config;
+            _emailServices = emailServices;
+        }
 
 		[HttpPost("login")]
 		public async Task<ActionResult<UserDto>> Login( LoginDto model)
@@ -44,6 +53,10 @@ namespace IdentityApplication.API.Controllers
 			return CtreateApplicationUserDto(user);
 
 		}
+	
+
+
+		
 		[HttpPost("register")]	
         public async Task<ActionResult<UserDto>> Register( RegisterDto model)
 		{
@@ -57,7 +70,6 @@ namespace IdentityApplication.API.Controllers
 				FirstName = model.FirstName.ToLower(),
 				LastName = model.LastName.ToLower(),
 				UserName = model.Email.ToLower(),
-				EmailConfirmed = true,
 				Email = model.Email.ToLower(),
 			};
 
@@ -66,11 +78,130 @@ namespace IdentityApplication.API.Controllers
 			if (!Result.Succeeded)
 				return BadRequest(Result.Errors);
 
-			return Ok(new JsonResult(new {title = "Account Created" , message="your account has been created , you can login" }  ));
-			//return Ok("your account has been created , you can login now ");
+			try
+			{
+				if( await sendConfairmEmailAsync(user))
+				{
+					return Ok(new JsonResult(new { title = "Account Created", message = "your Account has been created , please confirm your email " }));
+				}
+				
+				return BadRequest("faild to send email , please contact admin");
 
+			}
+			catch (Exception)
+			{
+				return BadRequest("faild to send email , please contact admin");
+			}
+
+
+
+
+            //return Ok("your account has been created , you can login now ");
+
+        }
+
+
+
+
+
+
+		[HttpGet("confirm-email")]
+		public async Task<ActionResult> ConfirmEmail(ConfirmEmailDto model)
+		{
+
+			var user = await _userManager.FindByEmailAsync(model.Email);
+
+			if (user is null)
+				return Unauthorized("this email address has not been registred yet");
+
+			if (user.EmailConfirmed)
+				return BadRequest("your email address was confirmed before , please login now");
+
+			try
+			{
+
+				var decodedTokemByts = WebEncoders.Base64UrlDecode(model.Token);
+				var decodedToken = Encoding.UTF8.GetString(decodedTokemByts);
+				var result = await _userManager.ConfirmEmailAsync(user,decodedToken);
+
+				if (result.Succeeded)
+					return Ok(new JsonResult(new { title = "confirm email", message = "your email address confirmed , please login now" }));
+
+				return BadRequest("invalid token , please try again");
+			}
+			catch (Exception)
+			{
+				
+				return BadRequest("invalid token , please try again");
+
+            }
+
+
+        }
+
+
+
+		[HttpPost("resend-email-confirmation-link/{email}")]
+		public async Task<ActionResult> ResendConfiramationEmailLink(string email)
+		{
+			if (string.IsNullOrEmpty(email))
+				return BadRequest("email not found");
+
+			var user = await _userManager.FindByEmailAsync(email);
+			if (user is null)
+				return Unauthorized("this email address has not been registered");
+			if (user.EmailConfirmed)
+				return BadRequest("ypur email address was confirmed before , please login ");
+
+			try
+			{
+				if (await sendConfairmEmailAsync(user))
+					return Ok(new JsonResult(new { titl = "Confirmation link sent", message = "please confirm your email address" }));
+
+
+				return BadRequest("Filed to send email , please context again");
+			
+			}
+
+
+			catch (Exception)
+			{
+                return BadRequest("Filed to send email , please context again");
+            }
+
+
+
+        }
+
+
+
+		[HttpPost("forgot-email-or-password/{email}")]
+		public async Task<ActionResult> ForgotEmailOrPassword(string email)
+		{
+			if (string.IsNullOrEmpty(email))
+				return BadRequest("Invalid Email");
+			var user = await _userManager.FindByEmailAsync(email);
+			if (email is null)
+				return Unauthorized("this email address has not been regisrewd yet");
+			if (!user.EmailConfirmed)
+				return BadRequest("you must confirmed your email first");
+
+			try
+			{
+				if (await sendForgotEmailOrPassword(user))
+					return Ok(new JsonResult(new { title = "Forgot Email or Password", message = "please check your email" }));
+
+				return BadRequest("Filed to send email , please context again");	
+			}
+			catch (Exception)
+			{
+
+                return BadRequest("Filed to send email , please context again");
+            }
+		
 		}
 
+		
 		[Authorize]
 		[HttpGet("refresh-user-token")]
 		public async Task<ActionResult<UserDto>> RefrshUserToken()
@@ -85,6 +216,37 @@ namespace IdentityApplication.API.Controllers
 
 		}
 
+
+		[HttpPut("reset-password")]
+		public async Task<ActionResult> ResetPassword(ResetPasswordDto model)
+		{
+			var user = await _userManager.FindByEmailAsync(model.Eamil);
+			if (user is null)
+				return Unauthorized("this email address has not been regisrewd yet");
+
+			if (!user.EmailConfirmed)
+				return BadRequest("you must confirmed your email first");
+
+			try
+			{
+				var decodedTokenBytes = WebEncoders.Base64UrlDecode(model.Token);
+				var decodedToken = Encoding.UTF8.GetString(decodedTokenBytes);
+				var result = await _userManager.ResetPasswordAsync(user, decodedToken, model.NewPassword);
+				if (result.Succeeded)
+					return Ok(new JsonResult(new { title = "Reset Password", message = "Your Password has been reset" }));
+
+				return BadRequest("Invalid Token , please try again");
+			}
+			catch (Exception)
+			{
+                return BadRequest("Invalid Token , please try again");
+
+
+            }
+
+
+        }
+			 
 
 
 
@@ -106,6 +268,50 @@ namespace IdentityApplication.API.Controllers
 			};
 		}	
 	
+	
+
+		private async Task<bool> sendConfairmEmailAsync(AppUser user)
+		{
+			var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+			token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+			var url = $"{_config["Token:ClientUrl"]}/{_config["Email:ConfirmEmailPath"]}?token={token}&email={user.Email}";
+
+			var body = $"<p> Hello {user.FirstName} {user.LastName}</p>" +
+						"<p> Please Confirm Your Email Address by Clicking on the Link </p>" +
+						$"<p> <a href=\"{url}\"> Click Here </a> </p>" +
+						"<p> Thank You</p>" +
+						$"<br> {_config["Email:ApplicationName"]}";
+
+			var email = new EmailSendDto(user.Email, "Confirm your Email", body);
+
+			return await _emailServices.sendEmailAsync(email);
+		
+		
+		}
+
+	
+		private async Task<bool> sendForgotEmailOrPassword(AppUser user)
+		{
+			var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+			token = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(token));
+
+			var url = $"{_config["Token:ClientUrl"]}/{_config["Email:ResetPasswordPath"]}?token{token}&email={user.Email}";
+
+
+            var body = $"<p> Hello {user.FirstName} {user.LastName}</p>" +
+						$"<p> email {user.Email}</p>"+
+						"<p> in order to reset your password .please click in the following link</p>"+
+                        "<p> Please Confirm Your Email Address by Clicking on the Link </p>" +
+                        $"<p> <a href=\"{url}\"> Click Here </a> </p>" +
+                        "<p> Thank You</p>" +
+                        $"<br> {_config["Email:ApplicationName"]}";
+
+
+			var email = new EmailSendDto(user.Email, "Forgot EmailOrPassword", body);
+			return await _emailServices.sendEmailAsync(email);
+		}
+			
 	
 	}
 }
