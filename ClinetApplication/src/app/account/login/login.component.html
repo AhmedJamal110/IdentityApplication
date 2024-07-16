@@ -29,13 +29,16 @@
             <div class="form-floating mb-3 text-danger" *ngIf="errorMessages.length > 0">
 
                 <app-validation-messages [errorMessage]="errorMessages"></app-validation-messages>
+                <a (click)="resendEmailConfirm()" *ngIf="errorMessages[0].includes('Please Confirm your Email')">
+                    Please, Click here to resend Email Confiramtion (in case you dont reseve it !!)
+                </a>
             </div>
 
             <div class="d-grid mt-3 P-3">
                 <button class="btn btn-outline-primary">Log in</button>
             </div>
             <div class="text-center mt-3">
-                <a class="btn btn-link">
+                <a class="btn btn-link" routerLink="/account/send-email/forgot-email-or-password">
                     <h6>forget username or password</h6>
                 </a>
             </div>

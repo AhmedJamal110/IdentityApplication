@@ -1,0 +1,46 @@
+<div class="container">
+    <div class="d-flex justify-content-center" *ngIf="Mode">
+        <div class="col-6">
+            <form [formGroup]="resndEmailForm" (ngSubmit)="onSendEmail()">
+                <div class="text-center mb-4">
+                    <h2 class="mb-3">
+                        <span *ngIf="Mode?.includes('resend-email-confirmation-link')">
+                            Resend Email Confirmation Link
+                        </span>
+                        <span *ngIf="Mode?.includes('forgot-email-or-password')">
+                            Reteive Email and Pasword
+                        </span>
+
+                    </h2>
+                </div>
+
+                <div class="form-floating mb-3">
+                    <input [class.is-invalid]="submitted && resndEmailForm.get('email')?.errors" type="email"
+                        class="form-control" placeholder="Email Address" formControlName="email">
+                    <label>Email</label>
+                    <span class="invalid-feedback"
+                        *ngIf="submitted && resndEmailForm.get('email')?.hasError('required')">email address is
+                        required</span>
+                    <span class="invalid-feedback"
+                        *ngIf="submitted && resndEmailForm.get('email')?.hasError('pattern') ">Invaild email
+                        address</span>
+                </div>
+
+                <div class="row">
+                    <div class="col-6">
+                        <div class="d-grid">
+                            <button class="btn btn-block btn-success" type="submit">Send</button>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="d-grid">
+                            <button class="btn btn-block btn-danger" type="button" (click)="onCancel()">Cancel</button>
+                        </div>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>

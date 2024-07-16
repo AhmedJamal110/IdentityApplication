@@ -1,11 +1,14 @@
-import { User } from './../shared/modules/User';
+import { User } from '../shared/modules/account/User';
 import { HttpClient, HttpHeaders,  } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Register } from '../shared/modules/register';
+import { Register } from '../shared/modules/account/register';
 import { environment } from '../shared/environments/environment.development';
-import { login } from '../shared/modules/Login';
+import { login } from '../shared/modules/account/Login';
 import { ReplaySubject, map, of } from 'rxjs';
 import { Router } from '@angular/router';
+import { RegisterWithExternals } from '../shared/modules/account/RegisterWithExternals';
+import { ConfirmEmail } from '../shared/modules/account/Confirm-Email';
+import { ResetPassword } from '../shared/modules/account/reset-password';
 
 
 
@@ -53,6 +56,11 @@ export class AccountService {
     return this._HttpClient.post<User>(this.baseUrl+'Account/register',model)
    }
 
+   registerWiththirdParty(model : RegisterWithExternals){
+   return this._HttpClient.post(this.baseUrl+'account/register-with-third-party' , model)
+   }
+
+
   login(model : login){
     return this._HttpClient.post<User>(this.baseUrl+'Account/login',model).pipe(
       map( (user : User) => {
@@ -70,5 +78,26 @@ export class AccountService {
     this._Router.navigateByUrl('/')
   }
 
+  EmailConfirm(model : ConfirmEmail){
+   return this._HttpClient.put(this.baseUrl+'Account/confirm-email' , model)
+  }
+
+
+
+
+  resendEmailConfirmation(email : string){
+    return this._HttpClient.post(this.baseUrl+`Account/resend-email-confirmation-link/${email}` , {})
+  }
+
+  ForgetEmailOrPassword(email : string){
+    return this._HttpClient.post(this.baseUrl+`Account/forgot-email-or-password${email}` , {})
+  }
+
+resetPassword(model : ResetPassword){
+  return this._HttpClient.put(this.baseUrl+'Account//reset-password',model)
+}
+
 
 }
+
+

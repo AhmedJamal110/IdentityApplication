@@ -52,6 +52,9 @@
                 <span class="invalid-feedback"
                     *ngIf="submitted && registerFrom.get('email')?.hasError('pattern') ">Invaild email address</span>
             </div>
+
+
+
             <div class="form-floating mb-3">
                 <input [class.is-invalid]="submitted && registerFrom.get('paswword')?.errors" type="password"
                     class="form-control" placeholder="paswword" formControlName="paswword">
@@ -73,15 +76,21 @@
                 <button type="submit" class="btn btn-outline-primary">Register</button>
             </div>
 
-            <div class="text-center mt-3">
-                <a class="btn btn-link">
-                    <h6>dont have an account</h6>
-                </a>
-            </div>
-
-
-
-
         </form>
+
+        <div class="row mt-3 d-flex justify-content-center">
+            <div class="col-4">
+                <hr>
+            </div>
+            <div class="col-4 text-center">Or Sign Up Using</div>
+            <div class="col-4">
+                <hr>
+            </div>
+        </div>
+
+        <div class="d-flex justify-content-between mt-3">
+            <div>Google</div>
+            <button class="btn btn-primary btn-face" (click)="registerWithFacebook()">Facebook</button>
+        </div>
     </div>
 </div>

@@ -1,4 +1,4 @@
-import { User } from './../../shared/modules/User';
+import { User } from '../../shared/modules/account/User';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AccountService } from '../account.service';
@@ -83,4 +83,10 @@ ngOnInit(): void {
 
 
   }
+
+  resendEmailConfirm(){
+
+    this._Router.navigateByUrl('/account/send-email/resend-email-confirmation-link')
+  }
+
 }

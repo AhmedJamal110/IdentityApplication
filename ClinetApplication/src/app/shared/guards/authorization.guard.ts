@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { Observable , map} from 'rxjs';
 import { AccountService } from 'src/app/account/account.service';
 import { SharedService } from '../shared.service';
-import { User } from '../modules/User';
+import { User } from '../modules/account/User';
 
 
 @Injectable({

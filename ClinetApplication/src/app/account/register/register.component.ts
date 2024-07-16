@@ -1,11 +1,12 @@
+import { login } from './../../shared/modules/account/Login';
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { AccountService } from '../account.service';
 import { Router } from '@angular/router';
 import { SharedService } from 'src/app/shared/shared.service';
 import { take } from 'rxjs';
-import { User } from 'src/app/shared/modules/User';
-
+import { User } from 'src/app/shared/modules/account/User';
+declare const FB : any;
   
 
 @Component({
@@ -77,6 +78,24 @@ export class RegisterComponent implements OnInit {
   }
 
   }
+
+  registerWithFacebook(){
+  FB.login(async(fbResult : any) => {
+    console.log(fbResult);
+
+    if(fbResult.authResponse){
+      
+      const accessToken = fbResult.authResponse.accessToken ;
+      const userID =  fbResult.authResponse.userID ;
+      this._Router.navigateByUrl(`/Account/register/third-party/facebook?access_token=${accessToken}&userid=${userID}`)
+
+    } else{
+      this._SharedService.showNotification(false , 'Failed' , 'cant register with facebook')
+    }   
+  } )
+  }
+
+
 
 }
 
