@@ -73,8 +73,8 @@ onRegiterWithThirdParty(){
     const model = new RegisterWithExternals(fname , lname , this.provider , this.accessToken , this.userid)
  
     this._AccountService.registerWiththirdParty(model).subscribe({
-      next : (response) => {
-        console.log(response);
+      next : _ => {
+        this._Router.navigateByUrl('/')
        },
        error:(err) => {
         if(err.error.errors){

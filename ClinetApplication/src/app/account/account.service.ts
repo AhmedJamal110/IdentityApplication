@@ -9,6 +9,7 @@ import { Router } from '@angular/router';
 import { RegisterWithExternals } from '../shared/modules/account/RegisterWithExternals';
 import { ConfirmEmail } from '../shared/modules/account/Confirm-Email';
 import { ResetPassword } from '../shared/modules/account/reset-password';
+import { LoginWithExternal } from '../shared/modules/account/LoginWithExternal';
 
 
 
@@ -57,8 +58,26 @@ export class AccountService {
    }
 
    registerWiththirdParty(model : RegisterWithExternals){
-   return this._HttpClient.post(this.baseUrl+'account/register-with-third-party' , model)
+   return this._HttpClient.post<User>(this.baseUrl+'account/register-with-third-party' , model).pipe( 
+    map((user: User) => {
+      if(user){
+        localStorage.setItem(environment.userkey , JSON.stringify(user));
+        this.userSource.next(user);
+    }
+    })
+   )
    }
+
+   loginWithThirdParty(model : LoginWithExternal){
+    return this._HttpClient.post<User>(this.baseUrl+'account/login-with-third-party' , model).pipe( 
+     map((user: User) => {
+       if(user){
+         localStorage.setItem(environment.userkey , JSON.stringify(user));
+         this.userSource.next(user);
+     }
+     })
+    )
+    }
 
 
   login(model : login){

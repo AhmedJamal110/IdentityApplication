@@ -60,10 +60,45 @@ namespace IdentityApplication.API.Controllers
 			return CtreateApplicationUserDto(user);
 
 		}
-	
 
 
-		[HttpPost("register")]	
+		[HttpPost("login-with-third-party")]
+		public async Task<ActionResult<UserDto>> loginWithExternal(LoginWithExternal model)
+		{
+			if (model.Provider.Equals(Sd.Facebook))
+			{
+                try
+                {
+                    if (!FacebookValidatAsync(model.AccessToken, model.UserId).GetAwaiter().GetResult())
+                    {
+                        return Unauthorized("Unable To login With Facebook");
+                    }
+                }
+                catch (Exception)
+                {
+                    return Unauthorized("Unable To login With Facebook");
+
+                }
+            }
+			else if (model.Provider.Equals(Sd.Google))
+			{
+				return Ok();
+			}
+			else
+			{
+				return BadRequest("Invalid Provider");
+			}
+
+			var user = await _userManager.Users.
+				FirstOrDefaultAsync(x => x.UserName == model.UserId && x.Provider == model.Provider);
+
+			if (user is null)
+				return Unauthorized("Account Not Found");
+
+			return CtreateApplicationUserDto(user);
+		}
+
+        [HttpPost("register")]	
         public async Task<ActionResult<UserDto>> Register( RegisterDto model)
 		{
 			if(await CheckEmailExit(model.Email))
@@ -107,7 +142,6 @@ namespace IdentityApplication.API.Controllers
         }
 
 
-
 		[HttpPost("register-with-third-party")]
 		public async Task<ActionResult<UserDto>> RegisterWithThiredParty(RegisterThirdParty model )
 		{
@@ -123,7 +157,6 @@ namespace IdentityApplication.API.Controllers
 				catch (Exception)
 				{
                     return Unauthorized("Unable To Register With Facebook");
-
 
                 }
 		   }

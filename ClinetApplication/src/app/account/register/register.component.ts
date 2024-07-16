@@ -81,7 +81,7 @@ export class RegisterComponent implements OnInit {
 
   registerWithFacebook(){
   FB.login(async(fbResult : any) => {
-    console.log(fbResult);
+    //console.log(fbResult);
 
     if(fbResult.authResponse){
       
@@ -93,7 +93,9 @@ export class RegisterComponent implements OnInit {
       this._SharedService.showNotification(false , 'Failed' , 'cant register with facebook')
     }   
   } )
-  }
+ 
+
+}
 
 
 
