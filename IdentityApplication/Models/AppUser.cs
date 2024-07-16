@@ -11,7 +11,7 @@ namespace IdentityApplication.API.Models
 
         public DateTime DateCreated { get; set; } = DateTime.UtcNow;
 
-
+        public string Provider { get; set; }
 
 
 

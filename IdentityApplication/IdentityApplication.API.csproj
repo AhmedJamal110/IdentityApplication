@@ -5,6 +5,7 @@
     <Nullable>disable</Nullable>
     <ImplicitUsings>disable</ImplicitUsings>
     <InvariantGlobalization>false</InvariantGlobalization>
+    <UserSecretsId>4dfc538d-50f6-49bb-9e78-ee5f1ae7d3ca</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
@@ -18,6 +19,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EditorConfigFiles Remove="D:\ASPNET Core Identity with Angular JWT Email Confirmation\[TutsNode.net] - ASPNET Core Identity with Angular JWT Email Confirmation\Identity\IdentityApplication\.editorconfig" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="D:\ASPNET Core Identity with Angular JWT Email Confirmation\[TutsNode.net] - ASPNET Core Identity with Angular JWT Email Confirmation\Identity\IdentityApplication\.editorconfig" />
   </ItemGroup>
 
 </Project>

@@ -37,6 +37,7 @@ namespace IdentityApplication
 			});
 
 			builder.Services.AddScoped<JwtServices>();
+			builder.Services.AddScoped<EmailServices>();
 
 			builder.Services.AddIdentityCore<AppUser>(opt =>
 			{

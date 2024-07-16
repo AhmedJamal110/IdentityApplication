@@ -10,14 +10,14 @@ namespace IdentityApplication.API.Services
     {
         private readonly IConfiguration _config;
 
-        public EmailServices( IConfiguration config)
+        public EmailServices(IConfiguration config)
         {
             _config = config;
         }
         public async Task<bool> sendEmailAsync(EmailSendDto model)
         {
 
-            MailjetClient client = new MailjetClient(_config["MailJet:ApiKey"], _config["MailJet,SecretKey"]);
+            MailjetClient client = new MailjetClient(_config["MailJet:ApiKey"], _config["MailJet:SecretKey"]);
 
 
             var email = new TransactionalEmailBuilder()
@@ -28,19 +28,19 @@ namespace IdentityApplication.API.Services
                     .Build();
 
             var response = await client.SendTransactionalEmailAsync(email);
-         
-            if(response.Messages != null)
+
+            if (response.Messages != null)
             {
                 if (response.Messages[0].Status == "success")
                 {
                     return true;
                 }
             }
-            
-            
+
+
             return false;
-            
-        
+
+
         }
 
     }
