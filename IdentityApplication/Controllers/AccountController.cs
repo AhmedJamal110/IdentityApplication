@@ -54,10 +54,13 @@ namespace IdentityApplication.API.Controllers
 
 			var Result = await _signInManager.CheckPasswordSignInAsync(user, model.Password, false);
 
+			//if (Result.IsLockedOut)
+			//	return Unauthorized( string.Format("Your Account had been locked , wait {0}   to able to login"));
+
 			if (!Result.Succeeded)
 				return Unauthorized("Invalid Email or Password");
 
-			return CtreateApplicationUserDto(user);
+			return await CtreateApplicationUserDto(user);
 
 		}
 
@@ -95,7 +98,7 @@ namespace IdentityApplication.API.Controllers
 			if (user is null)
 				return Unauthorized("Account Not Found");
 
-			return CtreateApplicationUserDto(user);
+			return await CtreateApplicationUserDto(user);
 		}
 
         [HttpPost("register")]	
@@ -186,7 +189,7 @@ namespace IdentityApplication.API.Controllers
 			if (!result.Succeeded)
 				return BadRequest(result.Errors);
 
-			return CtreateApplicationUserDto(userToAdd);
+			return await CtreateApplicationUserDto(userToAdd);
 
         }
 
@@ -198,7 +201,7 @@ namespace IdentityApplication.API.Controllers
 
             var email = User.FindFirstValue(ClaimTypes.Email);
             var user = await _userManager.FindByEmailAsync(email);
-            return CtreateApplicationUserDto(user);
+            return await CtreateApplicationUserDto(user);
 
         }
 
@@ -345,13 +348,13 @@ namespace IdentityApplication.API.Controllers
 		}
 	
 		
-		private UserDto CtreateApplicationUserDto(AppUser user)
+		private async Task<UserDto> CtreateApplicationUserDto(AppUser user)
 		{
 			return new UserDto
 			{
 				FirstName = user.FirstName,
 				LastName = user.LastName,
-				Token = _jwtServices.CreateJwt(user)
+				Token = await  _jwtServices.CreateJwt(user)
 			};
 		}	
 	

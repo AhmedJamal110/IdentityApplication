@@ -11,6 +11,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using System;
 using System.Linq;
 using System.Text;
@@ -26,18 +27,47 @@ namespace IdentityApplication
 
 			// Add services to the container.
 
-			builder.Services.AddControllers();
-			// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-			builder.Services.AddEndpointsApiExplorer();
-			builder.Services.AddSwaggerGen();
+            builder.Services.AddControllers();
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen(C =>
+            {
+                var SecuritySchema = new OpenApiSecurityScheme
+                {
+                    Name = "Authorizations",
+                    Description = " Jwt Auth Bearer Schema",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.Http,
+                    Scheme = "Bearer",
+                    Reference = new OpenApiReference
+                    {
+                        Id = "Bearer",
+                        Type = ReferenceType.SecurityScheme,
 
-			builder.Services.AddDbContext<AppIdentityDbContext>(Opt =>
+                    }
+                };
+
+                C.AddSecurityDefinition("Bearer", SecuritySchema);
+                var ScurityRequirments = new OpenApiSecurityRequirement
+                {
+                    {
+                        SecuritySchema , new [] {"Bearer"}
+                    }
+                };
+
+                C.AddSecurityRequirement(ScurityRequirments);
+            });
+
+
+
+            builder.Services.AddDbContext<AppIdentityDbContext>(Opt =>
 			{
 				Opt.UseSqlServer(builder.Configuration.GetConnectionString("IdnetityDbContext"));
 			});
 
-			builder.Services.AddScoped<JwtServices>();
+
+            builder.Services.AddScoped<JwtServices>();
 			builder.Services.AddScoped<EmailServices>();
+			builder.Services.AddScoped<ContextSeedingData>();
 
 			builder.Services.AddIdentityCore<AppUser>(opt =>
 			{
@@ -114,11 +144,16 @@ namespace IdentityApplication
 			{
 				var dbcontext = servicesProvader.GetRequiredService<AppIdentityDbContext>();
 				await dbcontext.Database.MigrateAsync();
-			}
+
+				var initSeedContext = servicesProvader.GetRequiredService<ContextSeedingData>();
+				await initSeedContext.InitializeContextAsync();
+
+
+            }
 			catch (Exception ex)
 			{
 				var loger = LoogerFactory.CreateLogger<Program>();
-				loger.LogError(ex, "An Error Occure");
+				loger.LogError(ex, "An Error Occure in migration or seeding data");
 
 			}
 			// Configure the HTTP request pipeline.
